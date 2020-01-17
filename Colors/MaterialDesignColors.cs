@@ -20,7 +20,7 @@ namespace Colors
     {
         private const string SourceURL = "https://www.materialpalette.com/colors";
 
-        public async Task<IReadOnlyList<Palette>> DownloadOnlinePalettes()
+        public async ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync()
         {
             var client = new HttpClient();
             var response = await client.GetAsync(SourceURL).ConfigureAwait(false);
@@ -29,6 +29,7 @@ namespace Colors
 
             var html = new HtmlDocument();
             html.Load(contentStream);
+            _ = contentStream.DisposeAsync();
 
             var encoded = html.DocumentNode.SelectSingleNode(@"//div[@data-react-class='Colors']").Attributes["data-react-props"].Value;
             var colorsList = JToken.Parse(HttpUtility.HtmlDecode(encoded))["colors"].Select(x => {

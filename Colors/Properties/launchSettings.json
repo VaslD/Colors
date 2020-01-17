@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Colors": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)"
+    }
+  }
+}

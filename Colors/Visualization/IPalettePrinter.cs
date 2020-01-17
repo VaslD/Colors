@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 using Colors.Core;
 
-namespace Colors
+namespace Colors.Visualization
 {
     /// <summary>
-    /// Basic interface of a stream writer that serializes/visualizes color palettes. 
+    /// Basic interface of a document writer that serializes/visualizes color palettes.
     /// </summary>
-    public interface IPalettePrinter : IDisposable
+    public interface IPalettePrinter : IAsyncDisposable
     {
         /// <summary>
         /// The target of this printer.
@@ -19,6 +20,6 @@ namespace Colors
         /// Prints the given color <paramref name="palette"/> to this printer's <see cref="Target"/>.
         /// Optionally, flush (save) this change immediately; otherwise let the target handle the underlying write.
         /// </summary>
-        void PrintPalette(Palette palette, bool flushWhenDone = false);
+        ValueTask PrintPaletteAsync(Palette palette, bool flushWhenDone = false);
     }
 }

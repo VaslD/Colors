@@ -1,11 +1,11 @@
 ﻿using System;
 using System.IO;
-
+using System.Threading.Tasks;
 using Colors.Core;
 
 using Pastel;
 
-namespace Colors
+namespace Colors.Visualization
 {
     /// <summary>
     /// A printer that lets you preview color palettes in <see cref="Console"/>.
@@ -26,29 +26,29 @@ namespace Colors
             Target = writer;
         }
 
-        public void PrintPalette(Palette palette, bool flushWhenDone = false)
+        public async ValueTask PrintPaletteAsync(Palette palette, bool flushWhenDone = false)
         {
-            Target.Write($"Palette: {palette.Name}");
+            await Target.WriteAsync($"Palette: {palette.Name}").ConfigureAwait(false);
 
             var colors = palette.Colors;
             for (var i = 0; i < colors.Count; i++)
             {
-                if (i % 5 == 0) Target.Write(Target.NewLine);
+                if (i % 5 == 0) await Target.WriteAsync(Target.NewLine).ConfigureAwait(false);
 
                 var color = colors[i];
-                if (string.IsNullOrEmpty(color.Name)) Target.Write("█".Pastel(color.Value));
-                else Target.Write(color.Name.Pastel(color.Value) + " | ");
+                if (string.IsNullOrEmpty(color.Name)) await Target.WriteAsync("█".Pastel(color.Value)).ConfigureAwait(false);
+                else await Target.WriteAsync(color.Name.Pastel(color.Value) + " | ").ConfigureAwait(false);
             }
 
-            Target.WriteLine();
+            await Target.WriteLineAsync().ConfigureAwait(false);
 
-            if (flushWhenDone) Target.Flush();
+            if (flushWhenDone) await Target.FlushAsync().ConfigureAwait(false);
         }
 
-        public void Dispose()
+        public ValueTask DisposeAsync()
         {
             // System.Console.Out should not be disposed.
-            return;
+            return default;
         }
     }
 }

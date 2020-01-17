@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+
+using Colors.Visualization;
 
 namespace Colors
 {
@@ -12,27 +15,48 @@ namespace Colors
     {
         private static async Task Main()
         {
-            var console = new ConsolePrinter();
+            var output = File.OpenWrite($"{DateTime.Now.ToString("yyyyMMdd HHmmss")}.yaml");
+            IPalettesProvider reader = new JapaneseTraditionalColors();
+            await PrintColorsToFile(new LocalStorageWriter(output), reader);
 
-            var updater = new MaterialDesignColors();
-            await PreviewColorsInConsole(console, updater).ConfigureAwait(false);
+            var inputPath = Path.Combine(Directory.GetCurrentDirectory(), "Cache", "Palettes.yaml");
+
+            var file = File.Open(inputPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+            file.Seek(0, SeekOrigin.Begin);
+
+            reader = new LocalStorageReader(file);
+            await PreviewColorsInConsole(reader);
+
+            Console.WriteLine("Done.");
         }
 
-        private static async Task PreviewColorsInConsole(IPalettePrinter printer, IPalettesProvider provider)
+        private static async Task PreviewColorsInConsole(IPalettesProvider provider)
         {
-            var palettes = await provider.DownloadOnlinePalettes().ConfigureAwait(false);
+            var printer = new ConsolePrinter();
+            var palettes = await provider.RetrievePalettesAsync().ConfigureAwait(false);
 
             Console.WriteLine($"Got {palettes.Count} palettes.");
             Console.WriteLine();
 
             foreach (var palette in palettes)
             {
-                printer.PrintPalette(palette, true);
+                await printer.PrintPaletteAsync(palette, true).ConfigureAwait(false);
 
                 Console.WriteLine();
                 Console.ReadKey();
                 Console.WriteLine();
             }
+        }
+
+        private static async Task PrintColorsToFile(LocalStorageWriter printer, IPalettesProvider provider)
+        {
+            var palettes = await provider.RetrievePalettesAsync().ConfigureAwait(false);
+
+            await printer.PrintPalettesAsync(palettes).ConfigureAwait(false);
+            await printer.DisposeAsync().ConfigureAwait(false);
+
+            Console.WriteLine($"Wrote {palettes.Count} palettes.");
+            Console.WriteLine();
         }
     }
 }

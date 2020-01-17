@@ -46,7 +46,7 @@ namespace Colors
             language = codes[localization];
         }
 
-        public async Task<IReadOnlyList<Palette>> DownloadOnlinePalettes()
+        public async ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync()
         {
             var client = new HttpClient();
             var response = await client.GetAsync(string.Format(SourceFeed, language)).ConfigureAwait(false);
@@ -54,6 +54,7 @@ namespace Colors
 
             var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
             var text = Encoding.UTF8.GetString(Zipper.Decompress(contentStream));
+            _ = contentStream.DisposeAsync();
             var url = text.Split('\n').First(x => x.StartsWith("ExportFlavour")).Trim();
 
             response = await client.GetAsync(string.Format(SourceURL, url)).ConfigureAwait(false);

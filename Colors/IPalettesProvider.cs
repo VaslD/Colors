@@ -10,6 +10,6 @@ namespace Colors
     /// </summary>
     public interface IPalettesProvider
     {
-        Task<IReadOnlyList<Palette>> DownloadOnlinePalettes();
+        ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync();
     }
 }

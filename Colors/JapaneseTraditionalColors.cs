@@ -18,7 +18,7 @@ namespace Colors
 
         private static readonly Regex extractor = new Regex(@"(.*)<span>.*<\/span><br>(.*)", RegexOptions.Compiled);
 
-        public async Task<IReadOnlyList<Palette>> DownloadOnlinePalettes()
+        public async ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync()
         {
             var client = new HttpClient();
             var response = await client.GetAsync(SourceURL).ConfigureAwait(false);
@@ -27,6 +27,7 @@ namespace Colors
 
             var html = new HtmlDocument();
             html.Load(contentStream);
+            _ = contentStream.DisposeAsync();
 
             var colors = new List<Color>();
             var nodes = html.DocumentNode.SelectNodes(@"//td/a");

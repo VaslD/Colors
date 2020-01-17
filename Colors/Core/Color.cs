@@ -21,6 +21,16 @@ namespace Colors.Core
             Name = name ?? throw new ArgumentNullException(nameof(name));
         }
 
+        public Color(int color)
+        {
+            Value = System.Drawing.Color.FromArgb(color);
+        }
+
+        public Color(string name, int color) : this(color)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+        }
+
         #region Interop
 
         public static explicit operator System.Drawing.Color(Color color) => color.Value;
