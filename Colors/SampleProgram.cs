@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using Pastel;
-
 namespace Colors
 {
+    /// <summary>
+    /// Console sample running on .NET Core.
+    /// Should be portable to .NET Framework without hassle.
+    /// For demonstration purpose only!
+    /// </summary>
     internal class SampleProgram
     {
-        /// <summary>
-        /// .NET Core console sample.
-        /// </summary>
-        /// <returns></returns>
         private static async Task Main()
         {
-            IPalettesProvider provider = new WarframeColors();
-            await PreviewColors(provider).ConfigureAwait(false);
+            var console = new ConsolePrinter();
 
-            provider = new MaterialDesignColors();
-            await PreviewColors(provider).ConfigureAwait(false);
+            var updater = new MaterialDesignColors();
+            await PreviewColorsInConsole(console, updater).ConfigureAwait(false);
         }
 
-        private static async Task PreviewColors(IPalettesProvider provider)
+        private static async Task PreviewColorsInConsole(IPalettePrinter printer, IPalettesProvider provider)
         {
             var palettes = await provider.DownloadOnlinePalettes().ConfigureAwait(false);
 
@@ -29,17 +27,7 @@ namespace Colors
 
             foreach (var palette in palettes)
             {
-                Console.Write(palette.Name);
-                var colors = palette.Colors;
-
-                var index = 0;
-                foreach (var color in colors)
-                {
-                    if (index % 10 == 0) Console.Write(Environment.NewLine + "  ");
-                    if (string.IsNullOrEmpty(color.Name)) Console.Write("█".Pastel(color.Value));
-                    else Console.Write(color.Name.Pastel(color.Value) + ", ");
-                    index += 1;
-                }
+                printer.PrintPalette(palette, true);
 
                 Console.WriteLine();
                 Console.ReadKey();

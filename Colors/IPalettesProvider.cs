@@ -6,7 +6,7 @@ using Colors.Core;
 namespace Colors
 {
     /// <summary>
-    /// Base interface of a color palette updater. For use in generic collections.
+    /// Basic interface of a color palette updater.
     /// </summary>
     public interface IPalettesProvider
     {
