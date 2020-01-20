@@ -35,7 +35,7 @@ namespace Colors
             {
                 var match = extractor.Match(node.InnerHtml);
                 if (!match.Success) continue;
-                colors.Add(new Color(match.Groups[1].Value, match.Groups[2].Value.Substring(1)));
+                colors.Add(new Color(match.Groups[1].Value.Trim(), match.Groups[2].Value.Substring(1)));
             }
 
             return new List<Palette> { new Palette("Japanese Traditional Colors", colors) };

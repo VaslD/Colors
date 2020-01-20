@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -10,7 +9,7 @@ using Colors.Visualization;
 
 using YamlDotNet.RepresentationModel;
 
-namespace Colors
+namespace Colors.Serialization
 {
     /// <summary>
     /// A printer that serializes in-memory palettes to a local file.
@@ -22,10 +21,7 @@ namespace Colors
 
         IDisposable IPalettePrinter.Target { get; }
 
-        public LocalStorageWriter(FileStream file)
-        {
-            Target = new StreamWriter(file, Encoding.UTF8);
-        }
+        public LocalStorageWriter(FileStream file) => Target = new StreamWriter(file, Encoding.UTF8);
 
         /// <summary>
         /// <para>Serialize a single <see cref="Palette"/> to a YAML document according to the following format:</para>
@@ -71,11 +67,6 @@ namespace Colors
             var streamable = new YamlStream(document);
             streamable.Save(Target, false);
             await Target.WriteLineAsync().ConfigureAwait(false);
-        }
-
-        public async Task PrintPalettesAsync(IEnumerable<Palette> palettes)
-        {
-            foreach (var palette in palettes) await PrintPaletteAsync(palette).ConfigureAwait(false);
         }
 
         #region IAsyncDisposable

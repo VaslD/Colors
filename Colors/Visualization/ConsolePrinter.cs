@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+
 using Colors.Core;
 
 using Pastel;
@@ -8,7 +9,7 @@ using Pastel;
 namespace Colors.Visualization
 {
     /// <summary>
-    /// A printer that lets you preview color palettes in <see cref="Console"/>.
+    /// A <see cref="IPalettePrinter"/> that lets you preview color palettes in system terminal.
     /// </summary>
     public sealed class ConsolePrinter : IPalettePrinter
     {
@@ -16,15 +17,9 @@ namespace Colors.Visualization
 
         IDisposable IPalettePrinter.Target => Target;
 
-        public ConsolePrinter()
-        {
-            Target = Console.Out;
-        }
+        public ConsolePrinter() => Target = Console.Out;
 
-        public ConsolePrinter(TextWriter writer)
-        {
-            Target = writer;
-        }
+        public ConsolePrinter(TextWriter writer) => Target = writer;
 
         public async ValueTask PrintPaletteAsync(Palette palette, bool flushWhenDone = false)
         {
@@ -45,10 +40,6 @@ namespace Colors.Visualization
             if (flushWhenDone) await Target.FlushAsync().ConfigureAwait(false);
         }
 
-        public ValueTask DisposeAsync()
-        {
-            // System.Console.Out should not be disposed.
-            return default;
-        }
+        public ValueTask DisposeAsync() => default;
     }
 }
