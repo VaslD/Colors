@@ -12,11 +12,13 @@ using SixLabors.Shapes;
 
 namespace Colors.Visualization
 {
-    public class PrintToPNG : IPalettePrinter
+    public class PrintToPNG : IPalettePrinter, IDisposable, IAsyncDisposable
     {
         public FileStream Target { get; }
 
         IDisposable IPalettePrinter.Target { get; }
+
+        public PrintToPNG(string filePath) => Target = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Read);
 
         public PrintToPNG(FileStream file) => Target = file;
 
@@ -87,6 +89,30 @@ namespace Colors.Visualization
             }));
         }
 
-        public async ValueTask DisposeAsync() => await Target.DisposeAsync().ConfigureAwait(false);
+        #region IDisposable
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing) Target.Dispose();
+        }
+
+        public void Dispose() => Dispose(true);
+
+        #endregion IDisposable
+
+        #region IAsyncDisposable
+
+        protected virtual ValueTask DisposeAsync(bool disposing)
+        {
+            if (disposing) return Target.DisposeAsync();
+            return default;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return DisposeAsync(true);
+        }
+
+        #endregion IAsyncDisposable
     }
 }

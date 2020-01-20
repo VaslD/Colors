@@ -3,9 +3,10 @@
 namespace Colors.Core
 {
     /// <summary>
-    /// A color with its dedicated name. Interoperable with <see cref="System.Drawing.Color"/>.
+    /// A color with its name.
+    /// Interoperable with <see cref="System.Drawing.Color"/> and <see cref="SixLabors.ImageSharp.Color"/>.
     /// </summary>
-    public class Color : IEquatable<Color>, IEquatable<System.Drawing.Color>
+    public class Color : IEquatable<Color>, IEquatable<System.Drawing.Color>, IEquatable<SixLabors.ImageSharp.Color>
     {
         public string Name { get; private set; }
         public System.Drawing.Color Value { get; private set; }
@@ -50,8 +51,10 @@ namespace Colors.Core
 
         public override int GetHashCode() => Value.ToArgb();
         public override bool Equals(object obj) => Equals(obj as Color);
+
         public bool Equals(Color other) => other != null && Value.Equals(other.Value);
         public bool Equals(System.Drawing.Color other) => other != null && Value.Equals(other);
+        public bool Equals(SixLabors.ImageSharp.Color other) => other != null && (SixLabors.ImageSharp.Color) this == other;
 
         #endregion Interop
     }

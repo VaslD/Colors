@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 using Colors.Core;
 
-namespace Colors
+namespace Colors.Generation
 {
     /// <summary>
     /// Basic interface of a color palette updater.

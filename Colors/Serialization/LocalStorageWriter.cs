@@ -15,7 +15,7 @@ namespace Colors.Serialization
     /// A printer that serializes in-memory palettes to a local file.
     /// These palettes can be brought back to in-memory objects via <see cref="LocalStorageReader"/>.
     /// </summary>
-    public class LocalStorageWriter : IPalettePrinter
+    public class LocalStorageWriter : IPalettePrinter, IDisposable, IAsyncDisposable
     {
         public StreamWriter Target { get; private set; }
 
@@ -69,16 +69,28 @@ namespace Colors.Serialization
             await Target.WriteLineAsync().ConfigureAwait(false);
         }
 
-        #region IAsyncDisposable
+        #region IDisposable
 
-        protected virtual async Task DisposeAsync(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (disposing) await Target.DisposeAsync().ConfigureAwait(false);
+            if (disposing) Target.Dispose();
         }
 
-        public async ValueTask DisposeAsync()
+        public void Dispose() => Dispose(true);
+
+        #endregion IDisposable
+
+        #region IAsyncDisposable
+
+        protected virtual ValueTask DisposeAsync(bool disposing)
         {
-            await DisposeAsync(true).ConfigureAwait(false);
+            if (disposing) return Target.DisposeAsync();
+            return default;
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return DisposeAsync(true);
         }
 
         #endregion IAsyncDisposable

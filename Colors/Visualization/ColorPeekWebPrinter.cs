@@ -12,7 +12,7 @@ namespace Colors.Visualization
     /// </summary>
     public class ColorPeekWebPrinter : IPalettePrinter
     {
-        public const string TargetURL = "http://colorpeek.com/#{0}";
+        private const string TargetURL = "http://colorpeek.com/#{0}";
 
         public IDisposable Target
             => throw new NotSupportedException("This printer has no specific target. It opens system-default web browser.");
@@ -24,9 +24,8 @@ namespace Colors.Visualization
                 FileName = string.Format(TargetURL, colorParams),
                 UseShellExecute = true
             });
+
             return default;
         }
-
-        public ValueTask DisposeAsync() => default;
     }
 }

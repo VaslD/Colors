@@ -7,7 +7,7 @@ using Colors.Core;
 
 using HtmlAgilityPack;
 
-namespace Colors
+namespace Colors.Generation
 {
     /// <summary>
     /// <see href="https://www.colordic.org/w">ColorDic.org</see> から更新された日本の伝統色の色見本。
@@ -20,14 +20,11 @@ namespace Colors
 
         public async ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync()
         {
-            var client = new HttpClient();
-            var response = await client.GetAsync(SourceURL).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var client = new HttpClient();
+            using var content = await client.GetStreamAsync(SourceURL).ConfigureAwait(false);
 
             var html = new HtmlDocument();
-            html.Load(contentStream);
-            _ = contentStream.DisposeAsync();
+            html.Load(content);
 
             var colors = new List<Color>();
             var nodes = html.DocumentNode.SelectNodes(@"//td/a");
@@ -35,10 +32,10 @@ namespace Colors
             {
                 var match = extractor.Match(node.InnerHtml);
                 if (!match.Success) continue;
-                colors.Add(new Color(match.Groups[1].Value.Trim(), match.Groups[2].Value.Substring(1)));
+                colors.Add(new Color(match.Groups[1].Value.Trim(), match.Groups[2].Value.Trim().Substring(1)));
             }
 
-            return new List<Palette> { new Palette("Japanese Traditional Colors", colors) };
+            return new List<Palette> { new Palette("日本の伝統色", colors) };
         }
     }
 }

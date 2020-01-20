@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,10 +11,10 @@ using Newtonsoft.Json.Linq;
 
 using SevenZip.Compression.LZMA;
 
-namespace Colors
+namespace Colors.Generation
 {
     /// <summary>
-    /// Color palettes in Warframe game. Updated from Warframe mobile app data bank.
+    /// Palettes seen in color picker extensions in Warframe game. Updated from Warframe mobile app data bank.
     /// </summary>
     public class WarframeColors : IPalettesProvider
     {
@@ -41,29 +42,21 @@ namespace Colors
 
         public WarframeColors() : this(Language.English) { }
 
-        public WarframeColors(Language localization)
-        {
-            language = codes[localization];
-        }
+        public WarframeColors(Language localization) => language = codes[localization];
 
         public async ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync()
         {
-            var client = new HttpClient();
-            var response = await client.GetAsync(string.Format(SourceFeed, language)).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            using var client = new HttpClient();
+            var content = await client.GetByteArrayAsync(string.Format(SourceFeed, language)).ConfigureAwait(false);
+            using var stream = new MemoryStream(content);
 
-            var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            var text = Encoding.UTF8.GetString(Zipper.Decompress(contentStream));
-            _ = contentStream.DisposeAsync();
+            var text = Encoding.UTF8.GetString(Zipper.Decompress(stream));
             var url = text.Split('\n').First(x => x.StartsWith("ExportFlavour")).Trim();
 
-            response = await client.GetAsync(string.Format(SourceURL, url)).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
+            var flavors = await client.GetStringAsync(string.Format(SourceURL, url)).ConfigureAwait(false);
+            flavors = flavors.Replace("\n", @"\n").Replace("\r\n", "\n");
 
-            var palettes = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            palettes = palettes.Replace("\n", @"\n").Replace("\r\n", "\n");
-
-            var colorsList = JToken.Parse(palettes)["ExportFlavour"].SelectTokens(@"$.[?(@.hexColours)]").Select(x => {
+            var colorsList = JToken.Parse(flavors)["ExportFlavour"].SelectTokens(@"$.[?(@.hexColours)]").Select(x => {
                 var colors = x["hexColours"].Select(y => new Color(y["value"].ToString().Substring(2))).ToList();
                 return new Palette(x["name"].ToString(), colors);
             }).ToList();

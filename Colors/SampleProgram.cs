@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-
+using Colors.Generation;
 using Colors.Serialization;
 using Colors.Visualization;
 
@@ -37,6 +37,25 @@ namespace Colors
             await printer.DisposeAsync().ConfigureAwait(false);
         }
 
+        private static async Task UpdateAllPalettes()
+        {
+            var chinese = new ChineseColors();
+            var japanese = new JapaneseTraditionalColors();
+            var material = new MaterialDesignColors();
+            var warframe = new WarframeColors();
+
+            var cachePath = Path.Combine(Directory.GetCurrentDirectory(), "Cache", "Palettes.yaml");
+            if (File.Exists(cachePath)) File.Delete(cachePath);
+
+            await using var output = new LocalStorageWriter(File.OpenWrite(cachePath));
+            await SendColorsToPrinter(output, chinese).ConfigureAwait(false);
+            await SendColorsToPrinter(output, japanese).ConfigureAwait(false);
+            await SendColorsToPrinter(output, material).ConfigureAwait(false);
+            await SendColorsToPrinter(output, warframe).ConfigureAwait(false);
+
+            return;
+        }
+
         private static async Task PreviewColorsInConsole(IPalettesProvider provider)
         {
             var printer = new ConsolePrinter();
@@ -60,7 +79,6 @@ namespace Colors
             var palettes = await provider.RetrievePalettesAsync().ConfigureAwait(false);
 
             foreach (var palette in palettes) await printer.PrintPaletteAsync(palette, true).ConfigureAwait(false);
-            await printer.DisposeAsync().ConfigureAwait(false);
 
             Console.WriteLine($"Wrote {palettes.Count} palette(s).");
             Console.WriteLine();

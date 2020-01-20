@@ -10,7 +10,7 @@ using HtmlAgilityPack;
 
 using Newtonsoft.Json.Linq;
 
-namespace Colors
+namespace Colors.Generation
 {
     /// <summary>
     /// Google's Material Design color palettes.
@@ -22,14 +22,11 @@ namespace Colors
 
         public async ValueTask<IReadOnlyList<Palette>> RetrievePalettesAsync()
         {
-            var client = new HttpClient();
-            var response = await client.GetAsync(SourceURL).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-            var contentStream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var client = new HttpClient();
+            using var content = await client.GetStreamAsync(SourceURL).ConfigureAwait(false);
 
             var html = new HtmlDocument();
-            html.Load(contentStream);
-            _ = contentStream.DisposeAsync();
+            html.Load(content);
 
             var encoded = html.DocumentNode.SelectSingleNode(@"//div[@data-react-class='Colors']").Attributes["data-react-props"].Value;
             var colorsList = JToken.Parse(HttpUtility.HtmlDecode(encoded))["colors"].Select(x => {

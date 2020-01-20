@@ -1,7 +1,7 @@
 ﻿namespace Colors
 {
     /// <summary>
-    /// Language code enumeration for interacting with localized endpoints.
+    /// Language enumeration for interacting with localized endpoints that takes a language code.
     /// </summary>
     public enum Language
     {

@@ -8,7 +8,7 @@ namespace Colors.Visualization
     /// <summary>
     /// Basic interface of a document writer that serializes/visualizes color palettes.
     /// </summary>
-    public interface IPalettePrinter : IAsyncDisposable
+    public interface IPalettePrinter
     {
         /// <summary>
         /// The target of this printer.

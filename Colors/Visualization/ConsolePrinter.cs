@@ -39,7 +39,5 @@ namespace Colors.Visualization
 
             if (flushWhenDone) await Target.FlushAsync().ConfigureAwait(false);
         }
-
-        public ValueTask DisposeAsync() => default;
     }
 }
